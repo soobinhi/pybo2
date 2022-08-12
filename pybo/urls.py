@@ -1,15 +1,22 @@
-from django.urls import path
+from django.urls import path, include
 from .views import base_views, answer_views, comment_views, question_views, vote_views
+
+from . import views
+from django.contrib import admin
+from django.conf.urls.static import static
+from django.conf import settings
 
 app_name = 'pybo'
 urlpatterns = [
 
     # base_views.py
     path('', base_views.index, name='index'),
+    path('question_download', base_views.question_download, name='question_download'),
     path('<int:question_id>/', base_views.detail, name='detail'),
 
     # question_views.py
     path('question/create/', question_views.question_create, name='question_create'),
+    path('question/file_download/<int:question_id>/', question_views.question_file_download, name='question_file_download'),
     path('question/modify/<int:question_id>/', question_views.question_modify, name='question_modify'),
     path('question/delete/<int:question_id>/', question_views.question_delete, name='question_delete'),
 
@@ -33,4 +40,4 @@ urlpatterns = [
          name="comment_delete_answer"),
     path('vote/question/<int:question_id>/', vote_views.vote_question, name='vote_question'),
     path('vote/answer/<int:answer_id>/', vote_views.vote_answer, name='vote_answer'),
-]
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

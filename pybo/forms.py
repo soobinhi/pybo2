@@ -4,10 +4,11 @@ from pybo.models import Question, Answer, Comment
 class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
-        fields = ['subject', 'content']
+        fields = ['subject', 'content', 'file']
         labels = {
             'subject' : '제목',
-            'content' : '내용'
+            'content' : '내용',
+            'file' : '첨부파일',
         }
 
 class AnswerForm(forms.ModelForm):

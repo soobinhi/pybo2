@@ -1,3 +1,5 @@
+import xlwt
+from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
 from django.db.models import Q, Count
@@ -34,6 +36,32 @@ def index(request):
     page_obj = paginator.get_page(page)
     context = {'question_list': page_obj, 'page' : page, 'kw' : kw, 'so' : so}
     return render(request, 'pybo/question_list.html', context)
+
+def question_download(request):
+    """
+    pybo 목록 다운로드
+    """
+
+    response = HttpResponse(content_type="application/vnd.ms-excel")
+    response["Content-Disposition"] = 'attachment;filename*=UTF-8\'\'data.xls'
+    wb = xlwt.Workbook(encoding='ansi')
+    ws = wb.add_sheet('질문 목록')
+
+    row_num = 0
+    col_names = ['제목', '내용', '작성자']
+
+    for idx, col_name in enumerate(col_names):
+        ws.write(row_num, idx, col_name)
+
+    rows = Question.objects.all().values_list('subject', 'content', 'author__username')
+
+    for row in rows:
+        row_num += 1
+        for col_num, attr in enumerate(row):
+            ws.write(row_num, col_num, attr)
+    wb.save(response)
+
+    return response
 
 def detail(request, question_id):
     """
