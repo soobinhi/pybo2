@@ -16,8 +16,11 @@ urlpatterns = [
 
     # question_views.py
     path('question/create/', question_views.question_create, name='question_create'),
-    path('question/file_download/<int:question_id>/', question_views.question_file_download, name='question_file_download'),
+    path('question/create/upload/', question_views.question_create_upload, name='question_create_upload'),
+    path('question/file_download/<int:file_id>/', question_views.question_file_download, name='question_file_download'),
     path('question/modify/<int:question_id>/', question_views.question_modify, name='question_modify'),
+    path('question/modify/<int:question_id>/delete', question_views.question_modify_delete, name='question_modify_delete'),
+    path('question/modify/<int:question_id>/upload/', question_views.question_modify_upload, name='question_modify_upload'),
     path('question/delete/<int:question_id>/', question_views.question_delete, name='question_delete'),
 
     # answer_views.py

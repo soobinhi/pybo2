@@ -2,9 +2,9 @@
 {% block content %}
 <div class="container">
     <h5 class="my-3 border-bottom pb-2">질문 등록</h5>
-    <form method="post" class="post-form my-3" enctype="multipart/form-data">
+   <!--<form method="post" class="post-form my-3" enctype="multipart/form-data">
         {% csrf_token %}
-        <!--오류 표시-->
+        오류 표시
         {% if form.errors %}
             <div class="alert alert-danger" role="alert">
                 {% for field in form %}
@@ -15,37 +15,90 @@
                 {% endfor %}
             </div>
         {% endif %}
-        <!--오류 표시 END-->
+        오류 표시 END-->
         <div class="form-group">
             <label for="subject">제목</label>
-            <input type="text" class="form-control" name="subject" id="subject"
-                   value="{{ form.subject.value|default_if_none:''}}">
+            <input type="text" class="form-control"  id="subjecttxt"
+                   value="{{ question.subject|default_if_none:''}}">
         </div>
         <div class="form-group">
             <label for="content">내용</label>
-            <textarea class="form-control" name="content" id="content"
-                      rows="10">{{ form.content.value|default_if_none:'' }}</textarea>
+            <textarea class="form-control" id="contenttxt"
+                      rows="10">{{ question.content|default_if_none:'' }}</textarea>
         </div>
         <div class="form-group">
             <label for="file">첨부 파일 : </label>
-            {% if form.file.value != 'False' and form.file.value is not None %}
-                    <div id="filearea">{{ form.file.value }} <a href="#" class="delete">삭제</a></div>
-            {% endif%}
-            <input type="hidden" name="filedel" id="filedel" value="0"/>
-            <input type="file" class="form-control" name="file" id="file" multiple="true"/>
+            {% if question.filemodel_set.count > 0 %}
+                {% for filemodel in question.filemodel_set.all %}
+            <div id="filearea{{filemodel.id}}">{{filemodel.subject}}&nbsp;<a href="#" class="delete" id="{{filemodel.id}}">삭제</a></div>
+                {% endfor %}
+            {%endif%}
+            <form enctype='multipart/form-data' action="upload/" method='POST' class="dropzone dz" id="my-dropzone" >
+            {% csrf_token %}
+                <div class="fallback">
+                    <input name="file" type="file" multiple />
+                </div>
+                <input type="hidden" name="subject" id="subject"/>
+                <input type="hidden" name="content" id="content"/>
+            </form>
         </div>
-        <button type="submit" class="btn btn-primary">저장하기</button>
-    </form>
+        <button type="submit" class="btn btn-primary" id = "upload">저장하기</button>
+        <form action="delete" method='POST' id="delform" >
+            {% csrf_token %}
+            <input type="hidden" name="del" id="del"/>
+        </form>
+    <!--</form>-->
 </div>
 {% endblock %}
 {% block script %}
 <script type="text/javascript">
     $(document).ready(function(){
         $(".delete").on('click', function(){
-                document.getElementById("filearea").style.display = "none";
-                $('#filedel').attr('value','1');
+            if(!confirm("정말로 삭제하시겠습니까?")) {
+            } else {
+                var id = $(this).attr('id');
+                //document.getElementById("filearea"+id).style.display = "none";
+                $('#del').attr('value',id);
+                $('#delform').submit();
+            }
         });
     });
-
+    Dropzone.autoDiscover=false;
+    const myDropzone= new Dropzone('#my-dropzone',{
+    url:'upload/',
+    maxFiles:5, // 업로드 가능 파일 수
+    parallelUploads:5, // 한번에 서버에 보낼 파일 갯수
+    autoProcessQueue: false, // 자동 업로드 여부
+    maxFilesize:20,
+    timeout: 2000000,
+    addRemoveLinks: true,
+    dictRemoveFile: '삭제',
+    uploadMultiple: true,
+    init: function () {
+      var submitButton = document.querySelector("#upload");
+      var myDropzone = this; //closure
+      submitButton.addEventListener("click", function () {
+         $('#subject').attr('value', $('#subjecttxt').val());
+         $('#content').attr('value', $('#contenttxt').val());
+         if(myDropzone.files==''){
+            $('#my-dropzone').submit();
+         }else{
+            myDropzone.processQueue();
+         }
+      });
+      myDropzone.on("sending", function(file, xhr, formData){
+        formData.append("subject", $('#subjecttxt').val());
+        formData.append("content", $('#contenttxt').val());
+      });
+      myDropzone.on("success", function(files, response) {
+        var url = window.location.href.split("/");
+        if(url[5]=='modify'){
+        window.location.replace("http://localhost:8000/pybo/"+url[6]+"/");
+        }else{
+        window.location.replace("http://localhost:8000/pybo/");
+        }
+      });
+    },
+})
 </script>
 {% endblock %}

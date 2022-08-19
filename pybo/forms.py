@@ -1,14 +1,13 @@
 from django import forms
-from pybo.models import Question, Answer, Comment
+from pybo.models import Question, Answer, Comment, FileModel
 
 class QuestionForm(forms.ModelForm):
     class Meta:
         model = Question
-        fields = ['subject', 'content', 'file']
+        fields = ['subject', 'content']
         labels = {
             'subject' : '제목',
             'content' : '내용',
-            'file' : '첨부파일',
         }
 
 class AnswerForm(forms.ModelForm):
@@ -25,4 +24,12 @@ class CommentForm(forms.ModelForm):
         fields = ['content']
         labels = {
             'content' : '댓글내용',
+        }
+
+class FileModelForm(forms.ModelForm):
+    class Meta:
+        model = FileModel
+        fields = ['subject']
+        labels = {
+            'subject' : '파일명',
         }

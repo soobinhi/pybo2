@@ -1,3 +1,4 @@
+from django import forms
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -8,7 +9,6 @@ class Question(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='author_question')
     modify_date = models.DateTimeField(null=True, blank=True)
     voter = models.ManyToManyField(User, related_name='voter_question')
-    file = models.FileField(null=True, upload_to="", blank=True)
 
     def __str__(self):
         return self.subject
@@ -29,7 +29,8 @@ class Comment(models.Model):
     question = models.ForeignKey(Question, null=True, blank=True, on_delete=models.CASCADE)
     answer = models.ForeignKey(Answer, null=True, blank=True, on_delete=models.CASCADE)
 
-'''class FileForm(models.Model):
+class FileModel(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     subject = models.TextField()
-    file = models.FileField(null=True, upload_to="", blank=True)'''
+    file = models.FileField(null=True, upload_to="", blank=True)
+
